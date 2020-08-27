@@ -21,6 +21,8 @@ function init() {
 
   var initialCenter;
 
+  var mode = false;
+
   var keyDown = false;
 
   function zoomTo(zoom) {
@@ -31,22 +33,23 @@ function init() {
     zoomTo(e.target._animateToZoom);
   });
 
-  map.on("click", function(e) {
+  map.on("mousedown", function(e) {
     if (keyDown === true) {
-      var latlng = e.latlng;
-      initialZoom = map.getZoom();
-      initialCenter = map.getCenter();
-      document.body.classList.add("mod");
-      var autoZoom = 10;
-      zoomTo(autoZoom);
-      console.log(latlng);
-      map.setView(latlng, autoZoom);
+      if (!initialZoom && !initialCenter) {
+        var latlng = e.latlng;
+        var autoZoom = 10;
+        initialZoom = map.getZoom();
+        initialCenter = map.getCenter();
+        zoomTo(autoZoom);
+        map.setView(latlng, autoZoom);
+        document.body.classList.add("mod");
+      }
     }
   });
 
   document.addEventListener("keydown", function(e) {
-    document.body.classList.add("active");
     if (e.keyCode === 83) {
+      document.body.classList.add("active");
       if (!keyDown) {
         keyDown = true;
       }
@@ -54,14 +57,23 @@ function init() {
   });
 
   document.addEventListener("keyup", function(e) {
-    document.body.classList.remove("active");
+    console.log(e.keyCode);
     if (e.keyCode === 83) {
+      document.body.classList.remove("active");
+      document.body.classList.remove("mod");
       keyDown = false;
       zoomTo(initialZoom);
-      document.body.classList.remove("mod");
       initialZoom && initialCenter && map.setView(initialCenter, initialZoom);
       initialCenter = undefined;
       initialZoom = undefined;
+    } else if (e.keyCode === 65) {
+      console.log(mode, "hi");
+      mode = !mode;
+      if (mode) {
+        document.body.classList.add("mod");
+      } else {
+        document.body.classList.remove("mod");
+      }
     }
   });
 }
