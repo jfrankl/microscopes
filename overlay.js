@@ -12,6 +12,7 @@ function init() {
     zoom: 5,
     minZoom: 5,
     maxZoom: 10,
+    zoomControl: false,
     layers: [Esri_WorldImagery]
   });
 
@@ -21,7 +22,7 @@ function init() {
 
   var initialCenter;
 
-  var mode = false;
+  var clickMode = false;
 
   var keyDown = false;
 
@@ -33,68 +34,46 @@ function init() {
     zoomTo(e.target._animateToZoom);
   });
 
-  map.on("click", function(e) {
-    console.log(
-      "mousedown happened",
-      "keyDown",
-      keyDown,
-      mode,
-      initialZoom,
-      initialCenter
-    );
-  });
-
   map.on("mousedown", function(e) {
-    console.log(
-      "click happened",
-      "keyDown",
-      keyDown,
-      mode,
-      initialZoom,
-      initialCenter
-    );
-    if (keyDown === true) {
+    if (clickMode === true) {
       if (!initialZoom && !initialCenter) {
         var latlng = e.latlng;
         var autoZoom = 10;
         initialZoom = map.getZoom();
         initialCenter = map.getCenter();
         zoomTo(autoZoom);
-        map.setView(latlng, autoZoom);
+        map.setView(latlng, autoZoom, { animate: false });
         document.body.classList.add("mod");
       }
     }
   });
 
-  document.addEventListener("keydown", function(e) {
-    if (e.keyCode === 83) {
-      document.body.classList.add("active");
-      if (!keyDown) {
-        keyDown = true;
-      }
-    }
-  });
+  L.control
+    .zoom({
+      position: "topright"
+    })
+    .addTo(map);
 
-  document.addEventListener("keyup", function(e) {
-    console.log(e.keyCode);
-    if (e.keyCode === 83) {
-      document.body.classList.remove("active");
-      document.body.classList.remove("mod");
-      keyDown = false;
-      zoomTo(initialZoom);
-      initialZoom && initialCenter && map.setView(initialCenter, initialZoom);
-      initialCenter = undefined;
-      initialZoom = undefined;
-    } else if (e.keyCode === 65) {
-      console.log(mode, "hi");
-      mode = !mode;
-      if (mode) {
-        document.body.classList.add("mod");
+  Mousetrap.bind(
+    "s",
+    function(e) {
+      clickMode = !clickMode;
+      console.log("clickmode", clickMode);
+      if (clickMode) {
+        document.body.classList.add("active");
       } else {
+        document.body.classList.remove("active");
         document.body.classList.remove("mod");
+        zoomTo(initialZoom);
+        initialZoom &&
+          initialCenter &&
+          map.setView(initialCenter, initialZoom, { animate: false });
+        initialCenter = undefined;
+        initialZoom = undefined;
       }
-    }
-  });
+    },
+    "keyup"
+  );
 }
 
 window.onload = init;
