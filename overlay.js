@@ -7,7 +7,7 @@ function init() {
     }
   );
 
-  window.map = new L.Map("map", {
+  map = new L.Map("map", {
     center: [50.0, 10.0],
     zoom: 5,
     minZoom: 5,
@@ -33,7 +33,26 @@ function init() {
     zoomTo(e.target._animateToZoom);
   });
 
+  map.on("click", function(e) {
+    console.log(
+      "mousedown happened",
+      "keyDown",
+      keyDown,
+      mode,
+      initialZoom,
+      initialCenter
+    );
+  });
+
   map.on("mousedown", function(e) {
+    console.log(
+      "click happened",
+      "keyDown",
+      keyDown,
+      mode,
+      initialZoom,
+      initialCenter
+    );
     if (keyDown === true) {
       if (!initialZoom && !initialCenter) {
         var latlng = e.latlng;
